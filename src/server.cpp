@@ -14,15 +14,11 @@ Server::Server()
     ESP_LOGI(tag, "hello from Server constructor");
 }
 
-// Can we forego user_context because our callback can make use of []?
-esp_err_t Server::register_endpoint(
-    const std::filesystem::path& uri,
-    Method method,
-    std::function<esp_err_t(httpd_req_t* req)> callback,
-    void* user_context
-)
+Endpoint& Server::register_endpoint(std::string path)
 {
-    return ESP_OK;
+    // it would be nice if there was some way to use regex here
+    endpoints_.emplace_back((path), Endpoint{});
+    return endpoints_.back().second;
 }
 
 esp_err_t Server::stop()
@@ -30,12 +26,12 @@ esp_err_t Server::stop()
     return httpd_stop(idf_server_);
 }
 
-httpd_handle_t* Server::idf_server()
+httpd_handle_t* Server::get_idf_server()
 {
     return &idf_server_;
 }
 
-httpd_config_t* Server::config()
+httpd_config_t* Server::get_idf_config()
 {
     return &idf_config_;
 }
